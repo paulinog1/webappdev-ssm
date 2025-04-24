@@ -1,0 +1,33 @@
+.home-container {
+    background-color: skyblue;
+    max-width: 1200px;
+    width: 80%;
+    padding: 24px;
+    padding-bottom: 48px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 0 auto;
+  }
+  
+  .home-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }
+  
+  .sign-out-btn {
+    color: #fff;
+    background-color: #dc004e;
+    margin-left: auto;
+  }
+  
+  .sign-out-btn:hover {
+    background-color: #a70033;
+  }
+  
+  .nav-button {
+    width: 100px;
+  }
+  
