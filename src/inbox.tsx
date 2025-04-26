@@ -43,7 +43,7 @@ export default function Inbox({ user }: InboxProps) {
       // 2. Load messages
       const { data } = await client.models.Message.list();
       const received = data.filter(
-        (msg) => msg.recipients.includes(user.username) && !msg.archived
+        (msg) => (msg.recipients ?? []).includes(user.username) && !msg.archived
       );
       const sent = data.filter(
         (msg) => msg.sender === user.username && !msg.archived
@@ -123,7 +123,7 @@ export default function Inbox({ user }: InboxProps) {
               secondary={
                 <>
                   From: {msg.senderDisplayName ?? "Unknown"} | 
-                  To: {msg.recipients.join(", ")} | 
+                  To: {(msg.recipients ?? []).join(", ")} | 
                   {msg.timestamp ? new Date(msg.timestamp).toLocaleString() : ""}
                 </>
               }
