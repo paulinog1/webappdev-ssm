@@ -1,48 +1,55 @@
+import { useEffect, useState } from "react";
+import { Box, Typography, Button, Stack } from "@mui/material";
 import { Link } from "react-router-dom";
-import { Box, Button, Container, Stack, Typography } from "@mui/material";
-import { useAuthenticator } from "@aws-amplify/ui-react";
-import './Home.css';
+import { generateClient } from "aws-amplify/data";
+import type { Schema } from "../amplify/data/resource";
 
-function Home() {
-  const { signOut, user } = useAuthenticator();
+const client = generateClient<Schema>();
+
+type HomeProps = {
+  user: {
+    username: string;
+  };
+};
+
+export default function Home({ user }: HomeProps) {
+  const [firstName, setFirstName] = useState("");
+
+  useEffect(() => {
+    const loadProfile = async () => {
+      const { data } = await client.models.UserProfile.list();
+      const profile = data.find((p) => p.username === user.username);
+      if (profile) {
+        setFirstName(profile.firstName);
+      }
+    };
+    loadProfile();
+  }, [user.username]);
 
   return (
-    <Box className="home-container">
-      {/* Welcome Text + Logout */}
-      <Container className="home-header">
-        <Box sx={{ flexGrow: 1, display: "flex", justifyContent: "center" }}>
-          <Typography variant="h4">
-            Welcome ({user?.username || "Guest"})
-          </Typography>
-        </Box>
+    <Box
+      sx={{
+        backgroundColor: "skyblue",
+        maxWidth: "800px",
+        padding: 4,
+        borderRadius: 3,
+        margin: "0 auto",
+        textAlign: "center",
+        marginTop: 6,
+      }}
+    >
+      <Typography variant="h4" gutterBottom>
+        Welcome back{firstName ? `, ${firstName}` : ""}!
+      </Typography>
 
-        <Button
-          className="sign-out-btn"
-          variant="text"
-          onClick={signOut}
-        >
-          Logout
+      <Stack direction="row" spacing={2} justifyContent="center" mt={2}>
+        <Button component={Link} to="/inbox" variant="contained">
+          Inbox
         </Button>
-      </Container>
-
-      <br />
-
-      {/* Navigation Buttons */}
-      <Stack direction="row" spacing={4} justifyContent="center">
-        <Button
-          variant="contained"
-          component={Link}
-          to="/inbox"
-          className="nav-button"
-        >
-          INBOX
-        </Button>
-        <Button variant="contained" className="nav-button">
-          ARCHIVES
+        <Button component={Link} to="/archive" variant="contained">
+          Archives
         </Button>
       </Stack>
     </Box>
   );
 }
-
-export default Home;

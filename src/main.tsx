@@ -1,20 +1,31 @@
-import React from "react";
-import ReactDOM from "react-dom/client";
-import App from "./App.tsx";
-import { Amplify } from "aws-amplify";
-import awsExports from "./aws-exports";
-import { BrowserRouter } from "react-router-dom";
-import { Authenticator } from "@aws-amplify/ui-react";
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
 
-Amplify.configure(awsExports);
+import { Amplify } from 'aws-amplify';
+import outputs from '../amplify_outputs.json';
 
-ReactDOM.createRoot(document.getElementById("root")!).render(
+import { Authenticator } from '@aws-amplify/ui-react';
+import '@aws-amplify/ui-react/styles.css';
+
+import App from './App';
+
+Amplify.configure(outputs);
+
+ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <BrowserRouter>
-      <Authenticator loginMechanisms={['username']} hideSignUp={false}>
-        {({ signOut, user }) => (
-          user ? <App /> : null
-        )}
+      <Authenticator>
+        {({ signOut, user }) =>
+          user ? (
+            <>
+              <button onClick={signOut}>Sign Out</button>
+              <App user={user} />
+            </>
+          ) : (
+            <p>Loading user...</p>
+          )
+        }
       </Authenticator>
     </BrowserRouter>
   </React.StrictMode>

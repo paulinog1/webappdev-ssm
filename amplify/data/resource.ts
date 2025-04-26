@@ -1,15 +1,25 @@
 import { type ClientSchema, a, defineData } from "@aws-amplify/backend";
 
 const schema = a.schema({
-  Message: a
+  Message: a.model({
+    sender: a.string(),
+    senderDisplayName: a.string(), // 👈 New
+    recipients: a.string().array(),
+    subject: a.string(),
+    body: a.string(),
+    timestamp: a.datetime(),
+    archived: a.boolean(),
+  })
+  .authorization((allow) => [allow.owner()]),
+  
+
+  UserProfile: a
     .model({
-      sender: a.string(),
-      recipients: a.array(a.string()),
-      content: a.string(),
-      timestamp: a.datetime(),
-      archived: a.boolean(),
+      username: a.string(),
+      firstName: a.string(),
+      lastName: a.string(),
     })
-    .authorization((allow) => [allow.owner()]), // Only owner can CRUD their messages
+    .authorization((allow) => [allow.owner()]),
 });
 
 export type Schema = ClientSchema<typeof schema>;
