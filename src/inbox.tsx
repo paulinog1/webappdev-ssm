@@ -37,7 +37,10 @@ export default function Inbox({ user }: InboxProps) {
       const { data: profile } = await client.models.UserProfile.get({ id: user.username ?? "" });
       console.log("Loaded profile:", profile);
       if (profile) {
-        setUserProfile({ firstName: profile.firstName, lastName: profile.lastName });
+        setUserProfile({
+          firstName: profile.firstName ?? "",
+          lastName: profile.lastName ?? "",
+        });
       }
 
       // 2. Load messages
