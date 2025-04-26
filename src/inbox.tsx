@@ -34,7 +34,7 @@ export default function Inbox({ user }: InboxProps) {
   const loadMessagesAndProfile = async () => {
     try {
       // 1. Load the user's profile
-      const { data: profile } = await client.models.UserProfile.get({ id: user.username });
+      const { data: profile } = await client.models.UserProfile.get({ id: user.username ?? "" });
       console.log("Loaded profile:", profile);
       if (profile) {
         setUserProfile({ firstName: profile.firstName, lastName: profile.lastName });
@@ -43,7 +43,7 @@ export default function Inbox({ user }: InboxProps) {
       // 2. Load messages
       const { data } = await client.models.Message.list();
       const received = data.filter(
-        (msg) => (msg.recipients ?? []).includes(user.username) && !msg.archived
+        (msg) => (msg.recipients ?? []).includes(user.username ?? "") && !msg.archived
       );
       const sent = data.filter(
         (msg) => msg.sender === user.username && !msg.archived
@@ -61,25 +61,25 @@ export default function Inbox({ user }: InboxProps) {
   const sendMessage = async () => {
     try {
       await client.models.Message.create({
-        sender: user.username,
+        sender: user.username ?? "",
         senderDisplayName: userProfile
           ? `${userProfile.firstName} ${userProfile.lastName}`
-          : user.username, // fallback if profile not loaded
+          : user.username ?? "", // <<< ADD ?? "" here
         recipients: [draft.recipient],
         subject: draft.subject,
         body: draft.body,
         timestamp: new Date().toISOString(),
         archived: false,
       });
-
+  
       setDraft({ recipient: "", subject: "", body: "" });
       setIsComposeOpen(false);
-
+  
       await loadMessagesAndProfile();
     } catch (error) {
       console.error("Failed to send message:", error);
     }
-  };
+  };  
 
   const deleteMessage = async (id: string) => {
     try {
