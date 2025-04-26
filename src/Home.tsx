@@ -13,14 +13,14 @@ type HomeProps = {
 };
 
 export default function Home({ user }: HomeProps) {
-  const [firstName, setFirstName] = useState("");
+  const [firstName, setFirstName] = useState<string>("");
 
   useEffect(() => {
     const loadProfile = async () => {
       const { data } = await client.models.UserProfile.list();
-      const profile = data.find((p) => p.username === user.username);
-      if (profile) {
-        setFirstName(profile.firstName);
+      const profile = data.find((p) => p?.username === user.username);
+      if (profile && profile.firstName) {
+        setFirstName(profile.firstName ?? ""); // fallback if missing
       }
     };
     loadProfile();
