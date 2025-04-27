@@ -33,22 +33,21 @@ export default function Inbox({ user }: InboxProps) {
   // Fetch user profile and messages
   const loadMessagesAndProfile = async () => {
     try {
-      // 1. Load the user's profile
-      const { data: profile } = await client.models.UserProfile.get({ id: user.username ?? "" });
+      // List all profiles
+      const { data: profiles } = await client.models.UserProfile.list();
+      const profile = profiles.find((p) => p.username === user.username);
+  
       console.log("Loaded profile:", profile);
+  
       if (profile) {
-        setUserProfile({
-          firstName: profile.firstName ?? "",
-          lastName: profile.lastName ?? "",
-        });
+        setUserProfile({ firstName: profile.firstName ?? "", lastName: profile.lastName ?? "" });
       }
-
-      // 2. Load messages
-      const { data } = await client.models.Message.list();
-      const received = data.filter(
-        (msg) => (msg.recipients ?? []).includes(user.username ?? "") && !msg.archived
+  
+      const { data: messagesData } = await client.models.Message.list();
+      const received = messagesData.filter(
+        (msg) => (msg.recipients ?? []).includes(user.username) && !msg.archived
       );
-      const sent = data.filter(
+      const sent = messagesData.filter(
         (msg) => msg.sender === user.username && !msg.archived
       );
       setMessages([...received, ...sent]);
@@ -56,6 +55,7 @@ export default function Inbox({ user }: InboxProps) {
       console.error("Failed to load profile or messages:", error);
     }
   };
+  
 
   useEffect(() => {
     loadMessagesAndProfile();
@@ -63,12 +63,26 @@ export default function Inbox({ user }: InboxProps) {
 
   const sendMessage = async () => {
     try {
+      // 1. Look up the recipient user profile by first name
+      const { data: profiles } = await client.models.UserProfile.list();
+      console.log("All profiles fetched:", profiles);
+      
+      const recipientProfile = profiles.find((p) => 
+        p.firstName?.toLowerCase() === draft.recipient.toLowerCase()
+      );
+  
+      if (!recipientProfile) {
+        alert("Recipient not found!");
+        return;
+      }
+  
+      // 2. Use the recipient's UUID (username) for sending
       await client.models.Message.create({
         sender: user.username ?? "",
         senderDisplayName: userProfile
           ? `${userProfile.firstName} ${userProfile.lastName}`
-          : user.username ?? "", // <<< ADD ?? "" here
-        recipients: [draft.recipient],
+          : user.username ?? "",
+        recipients: [recipientProfile.username], // <<<< use the UUID!
         subject: draft.subject,
         body: draft.body,
         timestamp: new Date().toISOString(),
@@ -82,7 +96,8 @@ export default function Inbox({ user }: InboxProps) {
     } catch (error) {
       console.error("Failed to send message:", error);
     }
-  };  
+  };
+  
 
   const deleteMessage = async (id: string) => {
     try {
