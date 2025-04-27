@@ -10,7 +10,8 @@ const schema = a.schema({
     timestamp: a.datetime(),
     archived: a.boolean(),
     readBy: a.string().array(),
-  }).authorization((allow) => [
+  })
+  .authorization((allow) => [
     allow.owner(),
   ]),
 
@@ -19,8 +20,9 @@ const schema = a.schema({
     username: a.string(),
     firstName: a.string(),
     lastName: a.string(),
-  }).authorization((allow) => [
-    allow.authenticated(),
+  })
+  .authorization((allow) => [
+    allow.authenticated({ operations: ["list", "get"] }),
     allow.owner(),
   ]),
 });
