@@ -9,9 +9,9 @@ const schema = a.schema({
     body: a.string(),
     timestamp: a.datetime(),
     archived: a.boolean(),
-    readyBy: a.string().array(),
+    readBy: a.string().array(),
   }).authorization((allow) => [
-    allow.owner(), // Only the owner can manage their messages
+    allow.owner(),
   ]),
 
   UserProfile: a.model({
@@ -20,9 +20,8 @@ const schema = a.schema({
     firstName: a.string(),
     lastName: a.string(),
   }).authorization((allow) => [
-    allow.publicApiKey(),   // (Optional) Public users can read profiles if needed
-    allow.authenticated(),  // ✅ Authenticated users can read
-    allow.owner(),          // ✅ Owners can edit their own profile
+    allow.authenticated(), // ✅ Allow signed-in users to read profiles
+    allow.owner(),          // ✅ Allow users to modify their own profile
   ]),
 });
 
