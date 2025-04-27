@@ -20,7 +20,6 @@ const schema = a.schema({
     firstName: a.string(),
     lastName: a.string(),
   }).authorization((allow) => [
-    allow.publicApiKey(),
     allow.authenticated(),
     allow.owner(),
   ]),
